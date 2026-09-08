@@ -1,0 +1,101 @@
+products:
+
+  # FIXA boormal
+  - url: "https://www.ikea.com/nl/nl/p/-90323393/"
+    quantity_needed: 1
+    target_price:
+
+  # PAX basiselement kledingkast, 100x58x236 cm, donkergrijs
+  - url: "https://www.ikea.com/nl/nl/p/-20458205/"
+    quantity_needed: 1
+    target_price:
+
+  # KOMPLEMENT zachtsluitende scharnieren, 4 stuks
+  - url: "https://www.ikea.com/nl/nl/p/-30214504/"
+    quantity_needed: 3
+    target_price:
+
+  # FLISBERGET deur, 50x229 cm
+  - url: "https://www.ikea.com/nl/nl/p/-60344735/"
+    quantity_needed: 3
+    target_price:
+
+  # KOMPLEMENT plank, 100x58 cm
+  - url: "https://www.ikea.com/nl/nl/p/-60509142/"
+    quantity_needed: 2
+    target_price:
+
+  # KOMPLEMENT kledingroede, 100 cm
+  - url: "https://www.ikea.com/nl/nl/p/-80256940/"
+    quantity_needed: 1
+    target_price:
+
+  # KOMPLEMENT uittrekbare spiegel, 28x130 cm
+  - url: "https://www.ikea.com/nl/nl/p/-50623874/"
+    quantity_needed: 1
+    target_price:
+
+  # PAX middenelement, 35x35x236 cm
+  - url: "https://www.ikea.com/nl/nl/p/-30603829/"
+    quantity_needed: 1
+    target_price:
+
+  # PAX basiselement kledingkast, 50x58x236 cm, donkergrijs
+  - url: "https://www.ikea.com/nl/nl/p/-30458219/"
+    quantity_needed: 1
+    target_price:
+
+  # KOMPLEMENT plank, 50x58 cm
+  - url: "https://www.ikea.com/nl/nl/p/-90509145/"
+    quantity_needed: 4
+    target_price:
+
+  # KOMPLEMENT kledingroede, 50 cm
+  - url: "https://www.ikea.com/nl/nl/p/-40256942/"
+    quantity_needed: 1
+    target_price:
+
+  # PAX eindelement, 20x58x236 cm
+  - url: "https://www.ikea.com/nl/nl/p/-70603851/"
+    quantity_needed: 1
+    target_price:
+
+  # SKUBB opbergtas, 90x53x19 cm
+  - url: "https://www.ikea.com/nl/nl/p/-50591062/"
+    quantity_needed: 1
+    target_price:
+
+  # SKUBB bak, 31x55x33 cm, 3 stuks per verpakking
+  - url: "https://www.ikea.com/nl/nl/p/-60290370/"
+    quantity_needed: 2
+    target_price:
+
+  # SKUBB opbergtas, 43x53x19 cm
+  - url: "https://www.ikea.com/nl/nl/p/-60591052/"
+    quantity_needed: 1
+    target_price:
+
+  # ÖVERSIDAN led-strip met sensor, 96 cm
+  - url: "https://www.ikea.com/nl/nl/p/-00589556/"
+    quantity_needed: 1
+    target_price:
+
+  # ÖVERSIDAN led-strip met sensor, 46 cm
+  - url: "https://www.ikea.com/nl/nl/p/-30589098/"
+    quantity_needed: 1
+    target_price:
+
+  # TRÅDFRI driver voor draadloze besturing, 10 W
+  - url: "https://www.ikea.com/nl/nl/p/-50356187/"
+    quantity_needed: 1
+    target_price:
+
+  # FÖRNIMMA aansluitsnoer, 3.5 m
+  - url: "https://www.ikea.com/nl/nl/p/-50446881/"
+    quantity_needed: 1
+    target_price:
+
+  # ENERYDA handgreep, 112 mm, 2 stuks per verpakking
+  - url: "https://www.ikea.com/nl/nl/p/-70347516/"
+    quantity_needed: 2
+    target_price:
