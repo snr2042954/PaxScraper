@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
-from app.ikea import fetch_product_price
-from app.models import PriceObservation, Product
+from app.ikea import IkeaProduct
+from app.models import PriceObservation
 
 
 @dataclass
@@ -16,62 +16,63 @@ class PriceCheckResult:
     dropped: bool
 
 
-async def check_product_price(
+def check_product_price(
     db: Session,
-    product: Product,
+    product: IkeaProduct,
 ) -> PriceCheckResult:
-    current_price = await fetch_product_price(product.url)
 
     previous_observation = db.scalar(
         select(PriceObservation)
-        .where(PriceObservation.product_id == product.id)
+        .where(
+            PriceObservation.article_number
+            == product.article_number
+        )
         .order_by(desc(PriceObservation.checked_at))
         .limit(1)
     )
 
-    # First ever observation
     if previous_observation is None:
         db.add(
             PriceObservation(
-                product_id=product.id,
-                price=current_price,
+                article_number=product.article_number,
+                price=product.price,
             )
         )
+
         db.commit()
 
         return PriceCheckResult(
             article_number=product.article_number,
             previous_price=None,
-            current_price=current_price,
+            current_price=product.price,
             changed=True,
             dropped=False,
         )
 
     previous_price = previous_observation.price
 
-    # Nothing changed, so don't create a new row
-    if current_price == previous_price:
+    if product.price == previous_price:
         return PriceCheckResult(
             article_number=product.article_number,
             previous_price=previous_price,
-            current_price=current_price,
+            current_price=product.price,
             changed=False,
             dropped=False,
         )
 
-    # Price changed, so record it
     db.add(
         PriceObservation(
-            product_id=product.id,
-            price=current_price,
+            article_number=product.article_number,
+            price=product.price,
         )
     )
+
     db.commit()
 
     return PriceCheckResult(
         article_number=product.article_number,
         previous_price=previous_price,
-        current_price=current_price,
+        current_price=product.price,
         changed=True,
-        dropped=current_price < previous_price,
+        dropped=product.price < previous_price,
     )

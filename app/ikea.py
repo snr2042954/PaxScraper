@@ -1,17 +1,31 @@
 import json
 import re
+from dataclasses import dataclass
 
 import httpx
 from bs4 import BeautifulSoup
 
 
-PRODUCT_URL = (
-    "https://www.ikea.com/nl/en/p/"
-    "pax-wardrobe-frame-dark-grey-20458205/"
-)
+@dataclass
+class IkeaProduct:
+    article_number: str
+    name: str
+    price: float
+    url: str
 
 
-async def fetch_product_price(url: str) -> float:
+def extract_article_number(url: str) -> str:
+    match = re.search(r"(\d{8})/?$", url)
+
+    if not match:
+        raise ValueError(
+            f"Could not extract IKEA article number from URL: {url}"
+        )
+
+    return match.group(1)
+
+
+async def fetch_product(url: str) -> IkeaProduct:
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (X11; Linux x86_64) "
@@ -30,7 +44,8 @@ async def fetch_product_price(url: str) -> float:
 
     soup = BeautifulSoup(response.text, "html.parser")
 
-    # First try structured JSON-LD embedded in the page.
+    article_number = extract_article_number(url)
+
     for script in soup.find_all("script", type="application/ld+json"):
         if not script.string:
             continue
@@ -46,16 +61,25 @@ async def fetch_product_price(url: str) -> float:
             if not isinstance(entry, dict):
                 continue
 
+            if entry.get("@type") != "Product":
+                continue
+
+            name = entry.get("name")
             offers = entry.get("offers")
 
-            if isinstance(offers, dict) and offers.get("price"):
-                return float(offers["price"])
+            if not name or not isinstance(offers, dict):
+                continue
 
-    raise ValueError("Could not find product price")
+            price = offers.get("price")
 
+            if price is None:
+                continue
 
-if __name__ == "__main__":
-    import asyncio
+            return IkeaProduct(
+                article_number=article_number,
+                name=name,
+                price=float(price),
+                url=url,
+            )
 
-    price = asyncio.run(fetch_product_price(PRODUCT_URL))
-    print(f"Current IKEA price: €{price:.2f}")
+    raise ValueError(f"Could not extract product data from {url}")

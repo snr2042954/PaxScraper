@@ -1,36 +1,41 @@
 import asyncio
 
-from sqlalchemy import select
-
+from app.config import load_products
 from app.db import Base, SessionLocal, engine
-from app.models import Product
+from app.ikea import fetch_product
 from app.services.price_checker import check_product_price
 
 
 async def main():
     Base.metadata.create_all(bind=engine)
 
+    tracked_products = load_products()
+
+    print(f"Scanning {len(tracked_products)} product(s)...\n")
+
     with SessionLocal() as db:
-        products = db.scalars(
-            select(Product).order_by(Product.article_number)
-        ).all()
 
-        if not products:
-            print("No products are currently being tracked.")
-            return
-
-        print(f"Scanning {len(products)} product(s)...\n")
-
-        for product in products:
+        for tracked in tracked_products:
             try:
-                result = await check_product_price(db, product)
+                product = await fetch_product(tracked.url)
 
-                print(f"{product.name}")
-                print(f"Article: {result.article_number}")
+                result = check_product_price(
+                    db,
+                    product,
+                )
+
+                print(product.name)
+                print(f"Article: {product.article_number}")
+                print(f"Needed:  {tracked.quantity_needed}")
+
+                if tracked.target_price is not None:
+                    print(
+                        f"Target:  €{tracked.target_price:.2f}"
+                    )
 
                 if result.previous_price is None:
                     print(
-                        f"Baseline price stored: "
+                        f"Baseline stored: "
                         f"€{result.current_price:.2f}"
                     )
 
@@ -47,7 +52,8 @@ async def main():
                     )
 
                     percentage = (
-                        difference / result.previous_price
+                        difference
+                        / result.previous_price
                     ) * 100
 
                     print(
@@ -66,11 +72,17 @@ async def main():
                     else:
                         print("Price increased.")
 
+                if (
+                    tracked.target_price is not None
+                    and product.price <= tracked.target_price
+                ):
+                    print("TARGET PRICE REACHED")
+
                 print()
 
             except Exception as exc:
-                print(f"{product.name}")
-                print(f"ERROR: {exc}\n")
+                print(f"ERROR checking {tracked.url}")
+                print(f"{exc}\n")
 
 
 if __name__ == "__main__":
