@@ -22,9 +22,11 @@ logging.basicConfig(
         "%(asctime)s | %(levelname)s | "
         "%(name)s | %(message)s"
     ),
+    force=True
 )
 
 logger = logging.getLogger("paxscraper")
+logger.setLevel(logging.INFO)
 
 
 @asynccontextmanager
