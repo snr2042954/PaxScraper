@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import desc, select
 
 from app.config import load_products
@@ -42,6 +43,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="PAX Scraper",
     lifespan=lifespan,
+)
+
+app.mount(
+    "/static",
+    StaticFiles(
+        directory=Path(__file__).parent / "static"
+    ),
+    name="static",
 )
 
 Base.metadata.create_all(bind=engine)
