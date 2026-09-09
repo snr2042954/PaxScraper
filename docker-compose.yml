@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "8012:8012"
+      - "${TAILSCALE_IP}:${PORT}:${PORT}"
 
     volumes:
       - ./data:/app/data
