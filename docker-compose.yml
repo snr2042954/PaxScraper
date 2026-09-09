@@ -1,0 +1,16 @@
+services:
+  paxscraper:
+    build: .
+    container_name: paxscraper
+
+    restart: unless-stopped
+
+    ports:
+      - "8012:8012"
+
+    volumes:
+      - ./data:/app/data
+      - ./products.yaml:/app/products.yaml:ro
+
+    environment:
+      - TZ=Europe/Amsterdam

@@ -6,6 +6,9 @@ from sqlalchemy.orm import Session
 from app.ikea import IkeaProduct
 from app.models import PriceObservation
 
+from datetime import datetime, timezone
+
+from app.models import PriceObservation, ProductMetadata
 
 @dataclass
 class PriceCheckResult:
@@ -20,6 +23,8 @@ def check_product_price(
     db: Session,
     product: IkeaProduct,
 ) -> PriceCheckResult:
+
+    update_product_metadata(db, product)
 
     previous_observation = db.scalar(
         select(PriceObservation)
@@ -76,3 +81,28 @@ def check_product_price(
         changed=True,
         dropped=product.price < previous_price,
     )
+
+def update_product_metadata(
+    db: Session,
+    product: IkeaProduct,
+) -> None:
+    metadata = db.get(
+        ProductMetadata,
+        product.article_number,
+    )
+
+    if metadata is None:
+        metadata = ProductMetadata(
+            article_number=product.article_number,
+            name=product.name,
+            url=product.url,
+        )
+
+        db.add(metadata)
+
+    else:
+        metadata.name = product.name
+        metadata.url = product.url
+        metadata.updated_at = datetime.now(timezone.utc)
+
+    db.commit()
