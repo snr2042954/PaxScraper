@@ -1,39 +1,19 @@
 import asyncio
+import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from app.config import load_products
-from app.db import SessionLocal
-from app.ikea import fetch_product
-from app.services.price_checker import check_product_price
+from app.services.scanner import scan_all_products
 
 
-async def run_scan():
-    tracked_products = load_products()
-
-    with SessionLocal() as db:
-        for tracked in tracked_products:
-            try:
-                product = await fetch_product(tracked.url)
-
-                check_product_price(
-                    db,
-                    product,
-                )
-
-                print(
-                    f"Scanned {product.article_number}: "
-                    f"€{product.price:.2f}"
-                )
-
-            except Exception as exc:
-                print(
-                    f"Error scanning {tracked.url}: {exc}"
-                )
+logger = logging.getLogger("paxscraper")
 
 
 def run_scan_sync():
-    asyncio.run(run_scan())
+    try:
+        asyncio.run(scan_all_products())
+    except Exception:
+        logger.exception("Scheduled scan failed")
 
 
 def start_scheduler():
@@ -48,5 +28,9 @@ def start_scheduler():
     )
 
     scheduler.start()
+
+    logger.info(
+        "Scheduler started. IKEA prices will be scanned every 6 hours."
+    )
 
     return scheduler

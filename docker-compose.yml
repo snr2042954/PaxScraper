@@ -8,6 +8,9 @@ services:
     ports:
       - "${TAILSCALE_IP}:${PORT}:${PORT}"
 
+    env_file:
+      - .env
+
     volumes:
       - ./data:/app/data
       - ./products.yaml:/app/products.yaml:ro

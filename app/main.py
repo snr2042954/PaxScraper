@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+import logging
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -7,22 +9,34 @@ from sqlalchemy import desc, select
 
 from app.config import load_products
 from app.db import Base, SessionLocal, engine
-from app.ikea import extract_article_number, fetch_product
+from app.ikea import extract_article_number
 from app.models import PriceObservation, ProductMetadata
-from app.services.price_checker import check_product_price
-
-from contextlib import asynccontextmanager
-
 from app.scheduler import start_scheduler
+from app.services.scanner import scan_all_products
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format=(
+        "%(asctime)s | %(levelname)s | "
+        "%(name)s | %(message)s"
+    ),
+)
+
+logger = logging.getLogger("paxscraper")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     scheduler = start_scheduler()
 
+    logger.info("PAX Scraper started")
+
     yield
 
     scheduler.shutdown()
+
+    logger.info("PAX Scraper stopped")
 
 
 app = FastAPI(
@@ -44,7 +58,9 @@ def dashboard(request: Request):
 
     with SessionLocal() as db:
         for tracked in tracked_products:
-            article_number = extract_article_number(tracked.url)
+            article_number = extract_article_number(
+                tracked.url
+            )
 
             metadata = db.get(
                 ProductMetadata,
@@ -54,10 +70,13 @@ def dashboard(request: Request):
             observations = db.scalars(
                 select(PriceObservation)
                 .where(
-                    PriceObservation.article_number == article_number
+                    PriceObservation.article_number
+                    == article_number
                 )
                 .order_by(
-                    desc(PriceObservation.checked_at)
+                    desc(
+                        PriceObservation.checked_at
+                    )
                 )
                 .limit(2)
             ).all()
@@ -79,12 +98,14 @@ def dashboard(request: Request):
 
             if current and previous:
                 difference = (
-                    current.price - previous.price
+                    current.price
+                    - previous.price
                 )
 
                 if previous.price != 0:
                     percentage_change = (
-                        difference / previous.price
+                        difference
+                        / previous.price
                     ) * 100
 
             dashboard_products.append(
@@ -96,8 +117,12 @@ def dashboard(request: Request):
                         else "Unknown product"
                     ),
                     "url": tracked.url,
-                    "quantity_needed": tracked.quantity_needed,
-                    "target_price": tracked.target_price,
+                    "quantity_needed": (
+                        tracked.quantity_needed
+                    ),
+                    "target_price": (
+                        tracked.target_price
+                    ),
                     "current_price": (
                         current.price
                         if current
@@ -109,7 +134,9 @@ def dashboard(request: Request):
                         else None
                     ),
                     "difference": difference,
-                    "percentage_change": percentage_change,
+                    "percentage_change": (
+                        percentage_change
+                    ),
                     "last_changed": (
                         current.checked_at
                         if current
@@ -150,24 +177,9 @@ def dashboard(request: Request):
 
 @app.post("/scan")
 async def scan():
-    tracked_products = load_products()
+    logger.info("Manual scan requested")
 
-    with SessionLocal() as db:
-        for tracked in tracked_products:
-            try:
-                product = await fetch_product(
-                    tracked.url
-                )
-
-                check_product_price(
-                    db,
-                    product,
-                )
-
-            except Exception as exc:
-                print(
-                    f"Error scanning {tracked.url}: {exc}"
-                )
+    await scan_all_products()
 
     return RedirectResponse(
         url="/",
