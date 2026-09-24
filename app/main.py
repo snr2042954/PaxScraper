@@ -4,25 +4,27 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from sqlalchemy import desc, select
 
 from app.config import load_products
 from app.db import Base, SessionLocal, engine
 from app.ikea import extract_article_number
-from app.models import PriceObservation, ProductMetadata
+from app.models import (
+    PriceObservation,
+    ProductMetadata,
+    SecondHandOfferRecord,
+)
 from app.scheduler import start_scheduler
 from app.services.scanner import scan_all_products
+from app.services.second_hand_scanner import scan_second_hand
 
 
 logging.basicConfig(
     level=logging.INFO,
-    format=(
-        "%(asctime)s | %(levelname)s | "
-        "%(name)s | %(message)s"
-    ),
-    force=True
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    force=True,
 )
 
 logger = logging.getLogger("paxscraper")
@@ -47,6 +49,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
 app.mount(
     "/static",
     StaticFiles(
@@ -55,20 +58,29 @@ app.mount(
     name="static",
 )
 
-Base.metadata.create_all(bind=engine)
+
+Base.metadata.create_all(
+    bind=engine
+)
+
 
 templates = Jinja2Templates(
-    directory=str(Path(__file__).parent / "templates")
+    directory=str(
+        Path(__file__).parent / "templates"
+    )
 )
 
 
 @app.get("/")
 def dashboard(request: Request):
     tracked_products = load_products()
+
     dashboard_products = []
 
     with SessionLocal() as db:
+
         for tracked in tracked_products:
+
             article_number = extract_article_number(
                 tracked.url
             )
@@ -79,7 +91,9 @@ def dashboard(request: Request):
             )
 
             observations = db.scalars(
-                select(PriceObservation)
+                select(
+                    PriceObservation
+                )
                 .where(
                     PriceObservation.article_number
                     == article_number
@@ -108,6 +122,7 @@ def dashboard(request: Request):
             percentage_change = None
 
             if current and previous:
+
                 difference = (
                     current.price
                     - previous.price
@@ -117,7 +132,45 @@ def dashboard(request: Request):
                     percentage_change = (
                         difference
                         / previous.price
-                    ) * 100
+                        * 100
+                    )
+
+            second_hand_offers = db.scalars(
+                select(
+                    SecondHandOfferRecord
+                )
+                .where(
+                    SecondHandOfferRecord.article_number
+                    == article_number,
+                    SecondHandOfferRecord.active.is_(
+                        True
+                    ),
+                )
+                .order_by(
+                    SecondHandOfferRecord.price.asc()
+                )
+            ).all()
+
+            best_second_hand = (
+                second_hand_offers[0]
+                if second_hand_offers
+                else None
+            )
+
+            second_hand_discount = None
+
+            if (
+                best_second_hand
+                and best_second_hand.original_price > 0
+            ):
+                second_hand_discount = (
+                    (
+                        best_second_hand.original_price
+                        - best_second_hand.price
+                    )
+                    / best_second_hand.original_price
+                    * 100
+                )
 
             dashboard_products.append(
                 {
@@ -153,20 +206,35 @@ def dashboard(request: Request):
                         if current
                         else None
                     ),
+                    "second_hand_offer": (
+                        best_second_hand
+                    ),
+                    "second_hand_discount": (
+                        second_hand_discount
+                    ),
+                    "second_hand_offer_count": (
+                        len(
+                            second_hand_offers
+                        )
+                    ),
                 }
             )
 
     scanned_count = sum(
         1
         for product in dashboard_products
-        if product["current_price"] is not None
+        if product["current_price"]
+        is not None
     )
 
     price_drop_count = sum(
         1
         for product in dashboard_products
-        if product["difference"] is not None
-        and product["difference"] < 0
+        if (
+            product["difference"]
+            is not None
+            and product["difference"] < 0
+        )
     )
 
     units_needed = sum(
@@ -174,23 +242,47 @@ def dashboard(request: Request):
         for product in dashboard_products
     )
 
+    second_hand_match_count = sum(
+        1
+        for product in dashboard_products
+        if (
+            product["second_hand_offer"]
+            is not None
+        )
+    )
+
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
         context={
-            "products": dashboard_products,
-            "scanned_count": scanned_count,
-            "price_drop_count": price_drop_count,
-            "units_needed": units_needed,
+            "products": (
+                dashboard_products
+            ),
+            "scanned_count": (
+                scanned_count
+            ),
+            "price_drop_count": (
+                price_drop_count
+            ),
+            "units_needed": (
+                units_needed
+            ),
+            "second_hand_match_count": (
+                second_hand_match_count
+            ),
         },
     )
 
 
 @app.post("/scan")
 async def scan():
-    logger.info("Manual scan requested")
+    logger.info(
+        "Manual scan requested"
+    )
 
     await scan_all_products()
+
+    await scan_second_hand()
 
     return RedirectResponse(
         url="/",

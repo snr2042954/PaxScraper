@@ -5,7 +5,7 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1"
+        content="width=device-width, initial-scale=1.0"
     >
 
     <title>PAX Scraper</title>
@@ -17,113 +17,89 @@
     >
 
     <style>
-        :root {
-            --bg: #f4f5f7;
-            --surface: #ffffff;
-            --surface-muted: #fafafa;
-
-            --text: #1f2937;
-            --text-muted: #6b7280;
-            --text-light: #9ca3af;
-
-            --border: #e5e7eb;
-
-            --green: #15803d;
-            --green-bg: #dcfce7;
-
-            --red: #b91c1c;
-            --red-bg: #fee2e2;
-
-            --shadow:
-                0 1px 2px rgba(0, 0, 0, 0.04),
-                0 1px 6px rgba(0, 0, 0, 0.03);
-        }
-
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
-
             font-family:
                 Inter,
-                ui-sans-serif,
                 system-ui,
                 -apple-system,
                 BlinkMacSystemFont,
                 "Segoe UI",
                 sans-serif;
 
-            background: var(--bg);
-            color: var(--text);
+            background: #f4f6f8;
+            color: #1f2937;
         }
 
-        button {
-            font: inherit;
-        }
-
-        .container {
-            width: min(1450px, calc(100% - 40px));
-            margin: 40px auto 70px;
+        .page {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 32px 24px 48px;
         }
 
         .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             gap: 24px;
 
             margin-bottom: 28px;
         }
 
-        .title-block h1 {
+        .title-group h1 {
             margin: 0;
 
             font-size: 32px;
-            line-height: 1.1;
+            font-weight: 750;
             letter-spacing: -0.03em;
         }
 
-        .subtitle {
-            margin-top: 7px;
+        .title-group p {
+            margin: 6px 0 0;
 
-            color: var(--text-muted);
+            color: #6b7280;
             font-size: 14px;
         }
 
         .scan-button {
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
 
-            padding: 11px 18px;
+            padding: 12px 20px;
 
             background: #111827;
-            color: #ffffff;
+            color: white;
 
-            font-weight: 600;
             font-size: 14px;
+            font-weight: 650;
 
             cursor: pointer;
 
             transition:
-                background 0.15s ease,
-                transform 0.05s ease;
+                opacity 0.15s ease,
+                transform 0.15s ease;
         }
 
         .scan-button:hover {
-            background: #374151;
+            opacity: 0.9;
         }
 
         .scan-button:active {
-            transform: translateY(1px);
+            transform: scale(0.98);
         }
 
         .summary-grid {
             display: grid;
 
             grid-template-columns:
-                repeat(4, minmax(0, 1fr));
+                repeat(
+                    5,
+                    minmax(0, 1fr)
+                );
 
             gap: 16px;
 
@@ -131,114 +107,96 @@
         }
 
         .summary-card {
-            background: var(--surface);
+            background: white;
 
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            border:
+                1px solid
+                #e5e7eb;
+
+            border-radius: 14px;
 
             padding: 20px;
 
-            box-shadow: var(--shadow);
-        }
-
-        .summary-label {
-            margin-bottom: 8px;
-
-            color: var(--text-muted);
-
-            font-size: 12px;
-            font-weight: 700;
-
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
+            box-shadow:
+                0 1px 2px
+                rgba(0, 0, 0, 0.03);
         }
 
         .summary-value {
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: -0.025em;
+            font-size: 28px;
+            font-weight: 750;
+
+            letter-spacing: -0.03em;
         }
 
-        .summary-small {
-            margin-top: 4px;
+        .summary-label {
+            margin-top: 6px;
 
-            color: var(--text-light);
-            font-size: 12px;
-        }
+            color: #6b7280;
 
-        .table-card {
-            overflow: hidden;
-
-            background: var(--surface);
-
-            border: 1px solid var(--border);
-            border-radius: 12px;
-
-            box-shadow: var(--shadow);
-        }
-
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            gap: 16px;
-
-            padding: 18px 20px;
-
-            border-bottom: 1px solid var(--border);
-        }
-
-        .table-title {
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .table-description {
-            margin-top: 3px;
-
-            color: var(--text-muted);
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 550;
         }
 
         .table-wrapper {
             overflow-x: auto;
+
+            background: white;
+
+            border:
+                1px solid
+                #e5e7eb;
+
+            border-radius: 14px;
+
+            box-shadow:
+                0 1px 2px
+                rgba(0, 0, 0, 0.03);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            white-space: nowrap;
         }
 
         thead {
-            background: var(--surface-muted);
+            background: #f9fafb;
         }
 
         th {
-            padding: 12px 16px;
-
-            color: var(--text-muted);
-
-            font-size: 11px;
-            font-weight: 700;
-
-            letter-spacing: 0.045em;
-            text-transform: uppercase;
+            padding: 14px 16px;
 
             text-align: left;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            color: #6b7280;
+
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+
+            border-bottom:
+                1px solid
+                #e5e7eb;
+
+            white-space: nowrap;
         }
 
         td {
             padding: 16px;
 
-            border-top: 1px solid var(--border);
+            border-bottom:
+                1px solid
+                #f0f1f3;
 
             vertical-align: middle;
+
+            font-size: 14px;
         }
 
-        tbody tr {
-            transition: background 0.12s ease;
+        tbody tr:last-child td {
+            border-bottom: none;
         }
 
         tbody tr:hover {
@@ -246,12 +204,11 @@
         }
 
         .product-cell {
-            min-width: 280px;
-            white-space: normal;
+            min-width: 270px;
         }
 
         .product-name {
-            color: var(--text);
+            color: #111827;
 
             font-size: 14px;
             font-weight: 650;
@@ -264,15 +221,9 @@
         }
 
         .article-number {
-            margin-top: 5px;
+            margin-top: 4px;
 
-            color: var(--text-muted);
-
-            font-family:
-                "SFMono-Regular",
-                Consolas,
-                "Liberation Mono",
-                monospace;
+            color: #9ca3af;
 
             font-size: 12px;
         }
@@ -280,133 +231,165 @@
         .price {
             font-size: 15px;
             font-weight: 700;
-        }
 
-        .previous-price {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .change {
-            display: inline-flex;
-            align-items: center;
-
-            border-radius: 999px;
-
-            padding: 5px 9px;
-
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .change-down {
-            background: var(--green-bg);
-            color: var(--green);
-        }
-
-        .change-up {
-            background: var(--red-bg);
-            color: var(--red);
-        }
-
-        .change-none {
-            background: #f3f4f6;
-            color: var(--text-muted);
-        }
-
-        .quantity {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-
-            min-width: 30px;
-            height: 30px;
-
-            border-radius: 7px;
-
-            background: #f3f4f6;
-
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .target {
-            color: var(--text);
-            font-size: 14px;
-        }
-
-        .target-badge {
-            display: inline-block;
-
-            margin-top: 5px;
-
-            border-radius: 999px;
-
-            padding: 4px 8px;
-
-            background: var(--green-bg);
-            color: var(--green);
-
-            font-size: 10px;
-            font-weight: 800;
-
-            letter-spacing: 0.035em;
-            text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .muted {
-            color: var(--text-light);
+            color: #9ca3af;
         }
 
-        .date {
-            color: var(--text-muted);
+        .change-badge {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 4px 8px;
+
+            border-radius: 999px;
+
             font-size: 12px;
+            font-weight: 700;
+
+            white-space: nowrap;
         }
 
-        .external-link {
-            margin-left: 5px;
+        .price-drop {
+            background: #dcfce7;
+            color: #166534;
+        }
 
-            color: var(--text-light);
+        .price-rise {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .unchanged {
+            color: #9ca3af;
+        }
+
+        .target-reached {
+            display: inline-flex;
+
+            margin-top: 4px;
+
+            padding: 3px 7px;
+
+            border-radius: 999px;
+
+            background: #dcfce7;
+            color: #166534;
 
             font-size: 11px;
+            font-weight: 700;
         }
 
-        .empty-state {
-            padding: 50px 20px;
+        .second-hand-offer {
+            min-width: 160px;
 
-            text-align: center;
+            padding: 9px 11px;
 
-            color: var(--text-muted);
+            border-radius: 10px;
+
+            background: #ecfdf5;
+
+            border:
+                1px solid
+                #bbf7d0;
+
+            color: #14532d;
         }
 
-        @media (max-width: 1050px) {
+        .second-hand-price {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+
+            margin-bottom: 4px;
+        }
+
+        .second-hand-price strong {
+            font-size: 15px;
+        }
+
+        .second-hand-discount {
+            display: inline-flex;
+
+            padding: 2px 6px;
+
+            border-radius: 999px;
+
+            background: #16a34a;
+            color: white;
+
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .second-hand-meta {
+            margin-top: 2px;
+
+            font-size: 12px;
+            color: #4b5563;
+        }
+
+        .second-hand-count {
+            margin-top: 4px;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            color: #15803d;
+        }
+
+        .needed {
+            font-weight: 650;
+        }
+
+        .last-change {
+            color: #6b7280;
+
+            font-size: 12px;
+
+            white-space: nowrap;
+        }
+
+        @media (
+            max-width: 1100px
+        ) {
             .summary-grid {
                 grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
+                    repeat(
+                        3,
+                        minmax(0, 1fr)
+                    );
             }
         }
 
-        @media (max-width: 700px) {
-            .container {
-                width: min(100% - 24px, 1450px);
-                margin-top: 24px;
+        @media (
+            max-width: 700px
+        ) {
+            .page {
+                padding:
+                    20px
+                    14px
+                    36px;
             }
 
             .header {
+                align-items: flex-start;
                 flex-direction: column;
-                align-items: stretch;
+            }
+
+            .summary-grid {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
             }
 
             .scan-button {
                 width: 100%;
-            }
-
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .title-block h1 {
-                font-size: 27px;
             }
         }
     </style>
@@ -414,309 +397,406 @@
 
 <body>
 
-<div class="container">
+<div class="page">
 
     <div class="header">
 
-        <div class="title-block">
-            <h1>PAX Scraper</h1>
+        <div class="title-group">
 
-            <div class="subtitle">
-                IKEA price tracker for your wardrobe build
-            </div>
+            <h1>
+                PAX Scraper
+            </h1>
+
+            <p>
+                IKEA price and Second Chance tracker
+            </p>
+
         </div>
 
-        <form method="post" action="/scan">
+        <form
+            action="/scan"
+            method="post"
+        >
+
             <button
                 class="scan-button"
                 type="submit"
             >
-                Scan prices
+                Scan now
             </button>
+
         </form>
 
     </div>
 
+
     <div class="summary-grid">
 
         <div class="summary-card">
+
+            <div class="summary-value">
+                {{ products|length }}
+            </div>
+
             <div class="summary-label">
                 Tracked products
             </div>
 
-            <div class="summary-value">
-                {{ products | length }}
-            </div>
-
-            <div class="summary-small">
-                Products in products.yaml
-            </div>
         </div>
 
+
         <div class="summary-card">
-            <div class="summary-label">
-                Products scanned
-            </div>
 
             <div class="summary-value">
                 {{ scanned_count }}
             </div>
 
-            <div class="summary-small">
-                Products with a stored price
+            <div class="summary-label">
+                Products scanned
             </div>
+
         </div>
 
+
         <div class="summary-card">
-            <div class="summary-label">
-                Price drops
-            </div>
 
             <div class="summary-value">
                 {{ price_drop_count }}
             </div>
 
-            <div class="summary-small">
-                Compared with previous stored price
+            <div class="summary-label">
+                Price drops
             </div>
+
         </div>
 
+
         <div class="summary-card">
-            <div class="summary-label">
-                Units needed
+
+            <div class="summary-value">
+                {{ second_hand_match_count }}
             </div>
+
+            <div class="summary-label">
+                Second Chance matches
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
 
             <div class="summary-value">
                 {{ units_needed }}
             </div>
 
-            <div class="summary-small">
-                Total configured quantity
+            <div class="summary-label">
+                Units needed
             </div>
+
         </div>
 
     </div>
 
-    <div class="table-card">
 
-        <div class="table-header">
+    <div class="table-wrapper">
 
-            <div>
-                <div class="table-title">
-                    Tracked IKEA products
-                </div>
+        <table>
 
-                <div class="table-description">
-                    Prices are only stored when they change.
-                </div>
-            </div>
+            <thead>
 
-        </div>
+                <tr>
 
-        {% if products %}
+                    <th>
+                        Product
+                    </th>
 
-        <div class="table-wrapper">
+                    <th>
+                        Current
+                    </th>
 
-            <table>
+                    <th>
+                        Second Chance
+                    </th>
 
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Current</th>
-                        <th>Previous</th>
-                        <th>Change</th>
-                        <th>Needed</th>
-                        <th>Target</th>
-                        <th>Last price change</th>
-                    </tr>
-                </thead>
+                    <th>
+                        Previous
+                    </th>
 
-                <tbody>
+                    <th>
+                        Change
+                    </th>
+
+                    <th>
+                        Needed
+                    </th>
+
+                    <th>
+                        Target
+                    </th>
+
+                    <th>
+                        Last price change
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
 
                 {% for product in products %}
 
-                    <tr>
+                <tr>
 
-                        <td class="product-cell">
+                    <td class="product-cell">
 
-                            <a
-                                class="product-name"
-                                href="{{ product.url }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {{ product.name }}
+                        <a
+                            class="product-name"
+                            href="{{ product.url }}"
+                            target="_blank"
+                        >
+                            {{ product.name }}
+                        </a>
 
-                                <span class="external-link">
-                                    ↗
-                                </span>
-                            </a>
+                        <div class="article-number">
+                            {{ product.article_number }}
+                        </div>
 
-                            <div class="article-number">
-                                {{ product.article_number }}
+                    </td>
+
+
+                    <td>
+
+                        {% if product.current_price is not none %}
+
+                            <div class="price">
+                                €{{ "%.2f"|format(product.current_price) }}
                             </div>
 
-                        </td>
+                        {% else %}
 
-                        <td>
-
-                            {% if product.current_price is not none %}
-
-                                <span class="price">
-                                    €{{ "%.2f"|format(product.current_price) }}
-                                </span>
-
-                            {% else %}
-
-                                <span class="muted">
-                                    Not scanned
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
-                        <td>
-
-                            {% if product.previous_price is not none %}
-
-                                <span class="previous-price">
-                                    €{{ "%.2f"|format(product.previous_price) }}
-                                </span>
-
-                            {% else %}
-
-                                <span class="muted">
-                                    —
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
-                        <td>
-
-                            {% if product.difference is none %}
-
-                                <span class="change change-none">
-                                    No history
-                                </span>
-
-                            {% elif product.difference < 0 %}
-
-                                <span class="change change-down">
-
-                                    ↓
-                                    €{{ "%.2f"|format(product.difference | abs) }}
-
-                                    {% if product.percentage_change is not none %}
-                                        &nbsp;
-                                        {{ "%.1f"|format(product.percentage_change | abs) }}%
-                                    {% endif %}
-
-                                </span>
-
-                            {% elif product.difference > 0 %}
-
-                                <span class="change change-up">
-
-                                    ↑
-                                    €{{ "%.2f"|format(product.difference) }}
-
-                                    {% if product.percentage_change is not none %}
-                                        &nbsp;
-                                        {{ "%.1f"|format(product.percentage_change) }}%
-                                    {% endif %}
-
-                                </span>
-
-                            {% else %}
-
-                                <span class="change change-none">
-                                    No change
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
-                        <td>
-
-                            <span class="quantity">
-                                {{ product.quantity_needed }}
+                            <span class="muted">
+                                —
                             </span>
 
-                        </td>
+                        {% endif %}
 
-                        <td>
+                    </td>
 
-                            {% if product.target_price is not none %}
 
-                                <div class="target">
-                                    €{{ "%.2f"|format(product.target_price) }}
+                    <td>
+
+                        {% if product.second_hand_offer %}
+
+                            {% set offer = product.second_hand_offer %}
+
+                            <a
+                                href="https://www.ikea.com/nl/nl/circular/second-hand/#/{{ offer.store_name }}"
+                                target="_blank"
+                                style="text-decoration: none;"
+                            >
+
+                                <div class="second-hand-offer">
+
+                                    <div class="second-hand-price">
+
+                                        <strong>
+                                            €{{ "%.2f"|format(offer.price) }}
+                                        </strong>
+
+                                        {% if product.second_hand_discount is not none %}
+
+                                            <span class="second-hand-discount">
+                                                -{{ "%.1f"|format(product.second_hand_discount) }}%
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                    <div class="second-hand-meta">
+                                        {{ offer.store_name|title }}
+                                    </div>
+
+                                    {% if offer.condition_title %}
+
+                                        <div class="second-hand-meta">
+                                            {{ offer.condition_title }}
+                                        </div>
+
+                                    {% endif %}
+
+                                    {% if offer.reason_discount %}
+
+                                        <div class="second-hand-meta">
+                                            {{ offer.reason_discount }}
+                                        </div>
+
+                                    {% endif %}
+
+                                    {% if product.second_hand_offer_count > 1 %}
+
+                                        <div class="second-hand-count">
+                                            {{ product.second_hand_offer_count }}
+                                            active offers
+                                        </div>
+
+                                    {% endif %}
+
                                 </div>
 
-                                {% if
-                                    product.current_price is not none
-                                    and
-                                    product.current_price <= product.target_price
-                                %}
+                            </a>
 
-                                    <div class="target-badge">
-                                        Target reached
-                                    </div>
+                        {% else %}
+
+                            <span class="muted">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if product.previous_price is not none %}
+
+                            €{{ "%.2f"|format(product.previous_price) }}
+
+                        {% else %}
+
+                            <span class="muted">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if product.difference is none %}
+
+                            <span class="unchanged">
+                                —
+                            </span>
+
+                        {% elif product.difference < 0 %}
+
+                            <span class="change-badge price-drop">
+
+                                ↓
+
+                                €{{ "%.2f"|format(product.difference|abs) }}
+
+                                {% if product.percentage_change is not none %}
+
+                                    (
+                                    {{ "%.1f"|format(product.percentage_change|abs) }}
+                                    %
+                                    )
 
                                 {% endif %}
 
-                            {% else %}
+                            </span>
 
-                                <span class="muted">
-                                    —
-                                </span>
+                        {% elif product.difference > 0 %}
+
+                            <span class="change-badge price-rise">
+
+                                ↑
+
+                                €{{ "%.2f"|format(product.difference) }}
+
+                                {% if product.percentage_change is not none %}
+
+                                    (
+                                    {{ "%.1f"|format(product.percentage_change) }}
+                                    %
+                                    )
+
+                                {% endif %}
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="unchanged">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td class="needed">
+
+                        {{ product.quantity_needed }}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if product.target_price is not none %}
+
+                            <div>
+                                €{{ "%.2f"|format(product.target_price) }}
+                            </div>
+
+                            {% if
+                                product.current_price is not none
+                                and
+                                product.current_price <= product.target_price
+                            %}
+
+                                <div class="target-reached">
+                                    Target reached
+                                </div>
 
                             {% endif %}
 
-                        </td>
+                        {% else %}
 
-                        <td>
+                            <span class="muted">
+                                —
+                            </span>
 
-                            {% if product.last_changed %}
+                        {% endif %}
 
-                                <span class="date">
-                                    {{
-                                        product.last_changed.strftime(
-                                            "%Y-%m-%d %H:%M"
-                                        )
-                                    }}
-                                </span>
+                    </td>
 
-                            {% else %}
 
-                                <span class="muted">
-                                    —
-                                </span>
+                    <td>
 
-                            {% endif %}
+                        {% if product.last_changed %}
 
-                        </td>
+                            <div class="last-change">
+                                {{ product.last_changed.strftime("%Y-%m-%d %H:%M") }}
+                            </div>
 
-                    </tr>
+                        {% else %}
+
+                            <span class="muted">
+                                —
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
 
                 {% endfor %}
 
-                </tbody>
+            </tbody>
 
-            </table>
-
-        </div>
-
-        {% else %}
-
-            <div class="empty-state">
-                No products configured in products.yaml.
-            </div>
-
-        {% endif %}
+        </table>
 
     </div>
 

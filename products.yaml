@@ -1,3 +1,23 @@
+second_hand:
+  enabled: true
+  scan_interval_hours: 1
+  min_discount_percent: 10
+
+  stores:
+    # - amersfoort
+    # - amsterdam
+    # - barendrecht
+    - breda
+    # - delft
+    - duiven
+    - eindhoven
+    # - groningen
+    # - haarlem
+    - heerlen
+    # - hengelo
+    # - utrecht
+    # - zwolle
+
 products:
 
   # FIXA boormal
