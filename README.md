@@ -1,15 +1,23 @@
 # PAX Scraper
 
+<<<<<<< HEAD
 Self-hosted IKEA price and Second Chance tracker for a custom PAX wardrobe build.
 
 PAX Scraper monitors a fixed list of IKEA products, stores normal retail price changes, scans IKEA's **Second Chance / Tweedekanshoek** inventory, and sends Pushover notifications when something interesting happens.
 
 The application runs as a FastAPI web app with a SQLite database and is designed to run continuously in Docker on a home server.
 
+=======
+Self-hosted IKEA price and Second Chance tracker for a PAX wardrobe build.
+
+It tracks selected IKEA products, records retail price changes, scans Second Chance inventory, sends Pushover notifications, and lets you record what you actually bought.
+
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
 ---
 
 ## Features
 
+<<<<<<< HEAD
 - Track a fixed list of IKEA products from `products.yaml`
 - Scrape current IKEA retail prices
 - Store price history in SQLite
@@ -70,6 +78,20 @@ The application runs as a FastAPI web app with a SQLite database and is designed
 Automatic scheduling is handled by APScheduler.
 
 Normal IKEA prices and Second Chance inventory intentionally use separate scanners because they represent different types of events.
+=======
+- Track IKEA products from `products.yaml`
+- Monitor normal IKEA prices
+- Scan Second Chance / Tweedekanshoek inventory
+- Match Second Chance listings by article number
+- Pushover notifications
+- Manual **Scan now** button
+- Scheduled scans
+- SQLite price history
+- Record purchases manually
+- Stop scanning a product once the required quantity has been bought
+- Dashboard with current deals and realized savings
+- Docker deployment
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
 
 ---
 
@@ -79,11 +101,11 @@ Normal IKEA prices and Second Chance inventory intentionally use separate scanne
 PaxScraper/
 ├── app/
 │   ├── services/
-│   │   ├── __init__.py
 │   │   ├── notifier.py
 │   │   ├── price_checker.py
 │   │   ├── scanner.py
 │   │   └── second_hand_scanner.py
+<<<<<<< HEAD
 │   │
 │   ├── templates/
 │   │   └── dashboard.html
@@ -92,20 +114,29 @@ PaxScraper/
 │   │   └── favicon.png
 │   │
 │   ├── __init__.py
+=======
+│   ├── templates/
+│   │   └── dashboard.html
+│   ├── static/
+│   │   └── favicon.png
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
 │   ├── config.py
 │   ├── db.py
 │   ├── ikea.py
 │   ├── main.py
 │   ├── models.py
+<<<<<<< HEAD
 │   ├── scheduler.py
 │   └── second_hand.py
 │
+=======
+│   ├── purchases.py
+│   ├── scheduler.py
+│   └── second_hand.py
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
 ├── data/
 │   └── ikea.db
-│
-├── .dockerignore
 ├── .env
-├── .gitignore
 ├── docker-compose.yml
 ├── Dockerfile
 ├── products.yaml
@@ -115,6 +146,7 @@ PaxScraper/
 
 ---
 
+<<<<<<< HEAD
 # Product Configuration
 
 Products are configured in:
@@ -122,6 +154,11 @@ Products are configured in:
 ```text
 products.yaml
 ```
+=======
+## Configuration
+
+Products and Second Chance stores are configured in `products.yaml`.
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
 
 Each tracked product contains:
 
@@ -132,19 +169,40 @@ Each tracked product contains:
 Example:
 
 ```yaml
+second_hand:
+  enabled: true
+  scan_interval_hours: 1
+  min_discount_percent: 10
+
+  stores:
+    - breda
+    - duiven
+    - eindhoven
+    - heerlen
+
 products:
 
+<<<<<<< HEAD
   # PAX basiselement kledingkast, 100x58x236 cm
+=======
+  # PAX basiselement
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
   - url: "https://www.ikea.com/nl/nl/p/-20458205/"
     quantity_needed: 1
     target_price:
 
+<<<<<<< HEAD
   # KOMPLEMENT zachtsluitende scharnier
   - url: "https://www.ikea.com/nl/nl/p/-30214504/"
+=======
+  # BERGSBO deur met scharnieren
+  - url: "https://www.ikea.com/nl/nl/p/bergsbo-deur-met-scharnieren-grijsbeige-s09436248/"
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
     quantity_needed: 3
     target_price:
 ```
 
+<<<<<<< HEAD
 The IKEA article number is automatically extracted from the URL.
 
 Product names are retrieved from IKEA and stored in the database.
@@ -615,6 +673,13 @@ Article: 20458205
 €105.00 → €95.00
 -9.5%
 ```
+=======
+Store IDs are resolved automatically from IKEA metadata.
+
+---
+
+## Dashboard
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
 
 ---
 
@@ -653,6 +718,7 @@ or on the server through the configured Tailscale address.
 
 The dashboard shows:
 
+<<<<<<< HEAD
 - product name
 - IKEA article number
 - current retail price
@@ -680,10 +746,104 @@ If multiple active offers exist for the same tracked product, the dashboard:
 
 - shows the cheapest active offer
 - shows the number of active offers
+=======
+```text
+Product
+Listing price
+Most recent discount price
+Second Chance price
+Bought price
+```
+
+Summary cards show:
+
+```text
+Tracked products
+Price drops
+Second Chance matches
+
+Listing price total
+Discount total
+Projected cost total
+```
+
+### Purchases
+
+Purchases are entered manually from the dashboard.
+
+For every purchase you enter:
+
+```text
+quantity
+price per item
+```
 
 Example:
 
 ```text
+2 items at €49.00 each
+```
+
+If an item requires 3 units:
+
+```text
+0 / 3 → still scanning
+1 / 3 → still scanning
+2 / 3 → still scanning
+3 / 3 → complete
+```
+
+Once the required quantity is reached:
+
+- the row is greyed out
+- normal price scanning stops
+- Second Chance scanning stops
+
+Purchases can be cleared from the dashboard if entered incorrectly.
+
+---
+
+## Totals
+
+### Listing price total
+
+Normal cost of the full build:
+
+```text
+listing price × quantity needed
+```
+
+### Discount total
+
+Only realized savings from actual purchases:
+
+```text
+(listing price × quantity bought)
+-
+actual purchase total
+```
+
+A deal appearing in Second Chance does **not** count as savings until it is actually purchased.
+
+### Projected cost total
+
+```text
+listing price total - realized discounts
+```
+
+Unbought items are therefore still assumed to eventually cost their normal listing price.
+
+---
+
+## Normal price tracking
+
+The normal scanner reads IKEA product pages and stores a new price observation only when the price changes.
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
+
+Example:
+
+```text
+<<<<<<< HEAD
 €59.00   -43.8%
 Eindhoven
 Zo goed als nieuw
@@ -747,14 +907,152 @@ After both scans finish, the browser is redirected back to the dashboard.
 PAX Scraper uses APScheduler.
 
 Normal retail price scans run every:
+=======
+€105
+→ €95
+→ €105
+```
+
+Only those three values are stored.
+
+Normal prices are scanned every:
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
 
 ```text
 6 hours
 ```
 
+<<<<<<< HEAD
 Second Chance scans are configured separately.
+=======
+---
 
-Example:
+## Second Chance
+
+Second Chance inventory is loaded from IKEA's Circular API.
+
+```text
+https://web-api.ikea.com/circular/circular-asis/offers/grouped/search
+```
+
+The scanner uses:
+
+```text
+size=32
+```
+
+and follows all returned pages.
+
+It tracks:
+
+- article number
+- store
+- price
+- condition
+- discount reason
+- offer UUID
+
+A listing remains active while IKEA continues returning it.
+
+When it disappears:
+
+```text
+active = false
+```
+
+The dashboard only displays active listings.
+
+Second Chance scans run every:
+
+```text
+1 hour
+```
+
+---
+
+## Notifications
+
+Configure Pushover in `.env`:
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
+
+```env
+PUSHOVER_USER_KEY=your_user_key
+PUSHOVER_API_TOKEN=your_api_token
+PRICE_CHANGE_THRESHOLD_PERCENT=5
+```
+
+Second Chance notifications include:
+
+```text
+Product
+Store
+Retail price
+Second Chance price
+Discount percentage
+Condition
+Discount reason
+```
+
+Offer UUIDs are stored so the same listing does not generate repeated notifications.
+
+---
+
+## Local development
+
+Create and activate the virtual environment:
+
+```powershell
+python -m venv .venv
+
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+Install dependencies:
+
+```powershell
+pip install -r requirements.txt
+```
+
+Run locally:
+
+```powershell
+uvicorn app.main:app --reload --port 8013
+```
+
+Open:
+
+```text
+http://127.0.0.1:8013
+```
+
+---
+
+## Manual scanner tests
+
+Normal IKEA prices:
+
+```powershell
+python -c "import asyncio; from app.services.scanner import scan_all_products; asyncio.run(scan_all_products())"
+```
+
+Second Chance:
+
+```powershell
+python -c "import asyncio; from app.services.second_hand_scanner import scan_second_hand; asyncio.run(scan_second_hand())"
+```
+
+Store resolution:
+
+```powershell
+python -c "import asyncio; from app.second_hand import resolve_store_ids; print(asyncio.run(resolve_store_ids(['eindhoven','breda','duiven','heerlen'])))"
+```
+
+---
+
+## Docker
+
+`Dockerfile`:
 
 ```yaml
 second_hand:
@@ -1037,16 +1335,19 @@ RUN mkdir -p /app/data
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8013"]
 ```
 
+<<<<<<< HEAD
 ---
 
 # Docker Compose
+=======
+`docker-compose.yml`:
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
 
 ```yaml
 services:
   paxscraper:
     build: .
     container_name: paxscraper
-
     restart: unless-stopped
 
     ports:
@@ -1063,6 +1364,7 @@ services:
       - TZ=Europe/Amsterdam
 ```
 
+<<<<<<< HEAD
 ---
 
 # Local `.env`
@@ -1297,11 +1599,42 @@ cd ~/Docker/.commands
 # Docker Logs
 
 View live logs:
+=======
+---
+
+## Server
+
+Project location:
+
+```text
+~/Docker/paxscraper
+```
+
+Update code:
+
+```bash
+cd ~/Docker/paxscraper
+git pull
+
+cd ../.commands
+./build paxscraper
+```
+
+Normal restart:
+
+```bash
+cd ~/Docker/.commands
+./up paxscraper
+```
+
+View logs:
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
 
 ```bash
 docker logs -f paxscraper
 ```
 
+<<<<<<< HEAD
 View recent logs:
 
 ```bash
@@ -1344,11 +1677,33 @@ and rebuild:
 ```bash
 cd ~/Docker/.commands
 
+=======
+---
+
+## Git workflow
+
+Local:
+
+```powershell
+git add .
+git commit -m "Update PaxScraper"
+git push
+```
+
+Server:
+
+```bash
+cd ~/Docker/paxscraper
+git pull
+
+cd ../.commands
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)
 ./build paxscraper
 ```
 
 ---
 
+<<<<<<< HEAD
 # Server-Side Local Changes
 
 If a server-side modification blocks `git pull`:
@@ -1539,3 +1894,50 @@ Personal project.
 No affiliation with IKEA.
 
 IKEA product names, trademarks, URLs, and related data belong to IKEA and their respective owners.
+=======
+## Database
+
+SQLite database:
+
+```text
+data/ikea.db
+```
+
+Main tables:
+
+```text
+product_metadata
+price_observations
+second_hand_offers
+purchases
+```
+
+The database is persisted through the Docker volume and does not need to be recreated during normal updates.
+
+---
+
+## Notes
+
+PAX Scraper separates three concepts:
+
+```text
+Retail price
+→ what IKEA normally charges
+
+Second Chance price
+→ a deal currently available
+
+Bought price
+→ what was actually paid
+```
+
+Only the final one affects realized savings.
+
+---
+
+## Disclaimer
+
+Personal project. Not affiliated with IKEA.
+
+IKEA product names, trademarks and product data belong to IKEA and their respective owners.
+>>>>>>> 34af680 (changed some products and added a new purchases module to track purchases)

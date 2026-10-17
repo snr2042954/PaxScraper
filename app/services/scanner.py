@@ -5,14 +5,26 @@ from dotenv import load_dotenv
 
 from app.config import load_products
 from app.db import SessionLocal
-from app.ikea import fetch_product
-from app.services.notifier import send_pushover_notification
-from app.services.price_checker import check_product_price
+from app.ikea import (
+    extract_article_number,
+    fetch_product,
+)
+from app.purchases import product_is_complete
+from app.services.notifier import (
+    send_pushover_notification,
+)
+from app.services.price_checker import (
+    check_product_price,
+)
 
 
 load_dotenv()
 
-logger = logging.getLogger("paxscraper")
+
+logger = logging.getLogger(
+    "paxscraper"
+)
+
 
 PRICE_CHANGE_THRESHOLD_PERCENT = float(
     os.getenv(
@@ -32,9 +44,33 @@ async def scan_all_products() -> None:
 
     successful = 0
     failed = 0
+    skipped = 0
 
     with SessionLocal() as db:
+
         for tracked in tracked_products:
+
+            article_number = (
+                extract_article_number(
+                    tracked.url
+                )
+            )
+
+            if product_is_complete(
+                db,
+                article_number,
+                tracked.quantity_needed,
+            ):
+                skipped += 1
+
+                logger.info(
+                    "SCAN SKIPPED | %s | "
+                    "required quantity already bought",
+                    article_number,
+                )
+
+                continue
+
             try:
                 product = await fetch_product(
                     tracked.url
@@ -47,10 +83,10 @@ async def scan_all_products() -> None:
 
                 successful += 1
 
-                # First observation
                 if result.previous_price is None:
                     logger.info(
-                        "SCAN OK | %s | %s | €%.2f | baseline",
+                        "SCAN OK | %s | %s | "
+                        "€%.2f | baseline",
                         product.article_number,
                         product.name,
                         product.price,
@@ -58,10 +94,10 @@ async def scan_all_products() -> None:
 
                     continue
 
-                # Price unchanged
                 if not result.changed:
                     logger.info(
-                        "SCAN OK | %s | %s | €%.2f | unchanged",
+                        "SCAN OK | %s | %s | "
+                        "€%.2f | unchanged",
                         product.article_number,
                         product.name,
                         product.price,
@@ -69,7 +105,6 @@ async def scan_all_products() -> None:
 
                     continue
 
-                # Price changed
                 percentage_change = (
                     (
                         result.current_price
@@ -80,7 +115,8 @@ async def scan_all_products() -> None:
                 )
 
                 logger.info(
-                    "SCAN OK | %s | %s | €%.2f -> €%.2f | %+.2f%%",
+                    "SCAN OK | %s | %s | "
+                    "€%.2f -> €%.2f | %+.2f%%",
                     product.article_number,
                     product.name,
                     result.previous_price,
@@ -88,8 +124,10 @@ async def scan_all_products() -> None:
                     percentage_change,
                 )
 
-                # Notify for changes greater than configured threshold
-                if abs(percentage_change) > PRICE_CHANGE_THRESHOLD_PERCENT:
+                if (
+                    abs(percentage_change)
+                    > PRICE_CHANGE_THRESHOLD_PERCENT
+                ):
 
                     direction = (
                         "PRICE DROP"
@@ -99,21 +137,29 @@ async def scan_all_products() -> None:
 
                     message = (
                         f"{product.name}\n"
-                        f"Article: {product.article_number}\n\n"
-                        f"€{result.previous_price:.2f} → "
+                        f"Article: "
+                        f"{product.article_number}\n\n"
+                        f"€{result.previous_price:.2f} "
+                        f"→ "
                         f"€{result.current_price:.2f}\n"
                         f"{percentage_change:+.1f}%"
                     )
 
                     try:
-                        await send_pushover_notification(
-                            title=f"{direction}: {product.name}",
-                            message=message,
-                            url=product.url,
+                        await (
+                            send_pushover_notification(
+                                title=(
+                                    f"{direction}: "
+                                    f"{product.name}"
+                                ),
+                                message=message,
+                                url=product.url,
+                            )
                         )
 
                         logger.info(
-                            "PUSHOVER SENT | %s | %+.2f%%",
+                            "PUSHOVER SENT | %s | "
+                            "%+.2f%%",
                             product.article_number,
                             percentage_change,
                         )
@@ -133,7 +179,9 @@ async def scan_all_products() -> None:
                 )
 
     logger.info(
-        "IKEA price scan finished | successful=%d failed=%d",
+        "IKEA price scan finished | "
+        "successful=%d failed=%d skipped=%d",
         successful,
         failed,
+        skipped,
     )

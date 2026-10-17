@@ -1,11 +1,9 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Float, Integer, String
+from sqlalchemy import Boolean, DateTime, Float, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
-
-from sqlalchemy import Boolean, DateTime, Float, Integer, String
 
 
 class ProductMetadata(Base):
@@ -58,35 +56,6 @@ class PriceObservation(Base):
         nullable=False,
     )
 
-class SeenSecondHandOffer(Base):
-    __tablename__ = "seen_second_hand_offers"
-
-    offer_uuid: Mapped[str] = mapped_column(
-        String,
-        primary_key=True,
-    )
-
-    article_number: Mapped[str] = mapped_column(
-        String,
-        nullable=False,
-        index=True,
-    )
-
-    store_id: Mapped[str] = mapped_column(
-        String,
-        nullable=False,
-    )
-
-    price: Mapped[float] = mapped_column(
-        Float,
-        nullable=False,
-    )
-
-    first_seen_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        nullable=False,
-    )
 
 class SecondHandOfferRecord(Base):
     __tablename__ = "second_hand_offers"
@@ -174,4 +143,35 @@ class SecondHandOfferRecord(Base):
     notified_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
+    )
+
+
+class Purchase(Base):
+    __tablename__ = "purchases"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+    )
+
+    article_number: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+        index=True,
+    )
+
+    quantity: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    unit_price: Mapped[float] = mapped_column(
+        Float,
+        nullable=False,
+    )
+
+    purchased_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
     )
