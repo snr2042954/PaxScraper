@@ -303,6 +303,13 @@ def dashboard(
                     "listing_price":
                     listing_price,
 
+                    "listing_line_total": (
+                        listing_price
+                        * tracked.quantity_needed
+                        if listing_price is not None
+                        else None
+                    ),
+
                     "most_recent_discount_price":
                     most_recent_discount_price,
 

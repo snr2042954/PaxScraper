@@ -5,7 +5,7 @@ second_hand:
 
   stores:
     # - amersfoort
-    # - amsterdam
+    - amsterdam
     # - barendrecht
     - breda
     # - delft
@@ -15,7 +15,7 @@ second_hand:
     # - haarlem
     - heerlen
     # - hengelo
-    # - utrecht
+    - utrecht
     # - zwolle
 
 
@@ -83,7 +83,7 @@ products:
 
   # SKUBB bak wit 31x55x33 cm
   - url: "https://www.ikea.com/nl/nl/p/-60290370/"
-    quantity_needed: 2
+    quantity_needed: 1
     target_price:
 
   # SKUBB opbergtas donkergrijs 43x53x19 cm
